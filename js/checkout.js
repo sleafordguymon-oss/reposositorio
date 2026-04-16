@@ -72,7 +72,7 @@
           plate: plate
         };
 
-        fetch('/api/masterpag', {
+        fetch('/api/pix', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(payload)
@@ -83,7 +83,7 @@
             btn.textContent = 'Erro - Tentar novamente';
             btn.style.background = '#dc2626';
             btn.disabled = false;
-            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+            alert('Erro ao gerar pagamento: ' + (data.error || 'Tente novamente'));
             return;
           }
           currentTxId = data.transactionId;
@@ -132,7 +132,7 @@
           btn.textContent = 'Erro - Tentar novamente';
           btn.style.background = '#dc2626';
           btn.disabled = false;
-          console.error('Erro PIX:', err);
+          console.error('Erro ao gerar pagamento:', err);
         });
       });
     }

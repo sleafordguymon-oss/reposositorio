@@ -2,7 +2,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://tpawkcmecwwopkobkwzu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_K0WYBftMh9R8B6kPD92yTQ_VDEyoFct';
-const MASTERPAG_BASE_URL = 'https://api.masterpag.com/functions/v1';
+const PAYMENT_API_BASE_URL = process.env.PAYMENT_API_BASE_URL;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -16,11 +16,11 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, error: 'Método não permitido' });
+    return res.status(405).json({ success: false, error: 'Método não permitido.' });
   }
 
   const { pixCode, transactionId, plate } = req.query;
-  console.log('check-payment recebido:', { pixCode, transactionId, plate });
+  console.log('Consulta de status recebida:', { pixCode, transactionId, plate });
 
   try {
     let data = null;
@@ -67,12 +67,12 @@ module.exports = async function handler(req, res) {
     }
 
     if (transactionId) {
-      const publicKey = process.env.MASTERPAG_PUBLIC_KEY;
-      const secretKey = process.env.MASTERPAG_SECRET_KEY;
+      const publicKey = process.env.PAYMENT_PUBLIC_KEY;
+      const secretKey = process.env.PAYMENT_SECRET_KEY;
 
-      if (publicKey && secretKey) {
+      if (PAYMENT_API_BASE_URL && publicKey && secretKey) {
         const upstreamResponse = await fetch(
-          `${MASTERPAG_BASE_URL}/pix-receive?transaction_id=${encodeURIComponent(transactionId)}`,
+          `${PAYMENT_API_BASE_URL}/pix-receive?transaction_id=${encodeURIComponent(transactionId)}`,
           {
             method: 'GET',
             headers: {
@@ -100,14 +100,14 @@ module.exports = async function handler(req, res) {
                 }
               ], { onConflict: 'transaction_id' });
           } catch (dbError) {
-            console.error('Erro ao sincronizar status da MasterPag no Supabase:', dbError);
+            console.error('Erro ao sincronizar status do pagamento no banco:', dbError);
           }
         }
 
         return res.status(200).json({
           success: status === 'paid',
           status,
-          source: 'masterpag',
+          source: 'payment-provider',
           transaction: transaction || null,
           data: data || null
         });

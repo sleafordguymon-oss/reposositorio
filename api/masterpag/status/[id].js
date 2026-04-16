@@ -1,4 +1,4 @@
-const MASTERPAG_BASE_URL = 'https://api.masterpag.com/functions/v1';
+const PAYMENT_API_BASE_URL = process.env.PAYMENT_API_BASE_URL;
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,23 +10,23 @@ module.exports = async (req, res) => {
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ success: false, error: 'Método não permitido' });
+    return res.status(405).json({ success: false, error: 'Método não permitido.' });
   }
 
   try {
     const id = (req.query.id || req.query.transaction_id || '').toString().trim();
-    const publicKey = process.env.MASTERPAG_PUBLIC_KEY;
-    const secretKey = process.env.MASTERPAG_SECRET_KEY;
+    const publicKey = process.env.PAYMENT_PUBLIC_KEY;
+    const secretKey = process.env.PAYMENT_SECRET_KEY;
 
     if (!id) {
-      return res.status(400).json({ success: false, error: 'ID da transação é obrigatório.' });
+      return res.status(400).json({ success: false, error: 'Identificador da transação não informado.' });
     }
 
-    if (!publicKey || !secretKey) {
-      return res.status(500).json({ success: false, error: 'Credenciais da MasterPag não configuradas.' });
+    if (!PAYMENT_API_BASE_URL || !publicKey || !secretKey) {
+      return res.status(500).json({ success: false, error: 'Configurações de pagamento não configuradas.' });
     }
 
-    const response = await fetch(`${MASTERPAG_BASE_URL}/pix-receive?transaction_id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`${PAYMENT_API_BASE_URL}/pix-receive?transaction_id=${encodeURIComponent(id)}`, {
       method: 'GET',
       headers: {
         'x-public-key': publicKey,
@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
     });
 
     const data = await response.json();
-    const transaction = data && data.transaction ? data.transaction : null;
+    const transaction = data?.transaction || data || null;
 
     if (!response.ok) {
       return res.status(response.status).json({
@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
       transaction
     });
   } catch (error) {
-    console.error('Erro ao consultar status da MasterPag:', error);
+    console.error('Erro ao consultar status do pagamento:', error);
     return res.status(500).json({ success: false, error: error.message || 'Erro interno.' });
   }
 };
