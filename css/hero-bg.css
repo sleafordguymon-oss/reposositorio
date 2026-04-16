@@ -1,0 +1,14 @@
+.hero-strap {
+  background-image: url('https://i.imgur.com/MUtzfrj.jpeg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  min-height: 300px !important;
+  height: 300px !important;
+}
+
+.hero-strap svg {
+  opacity: 0.3 !important;
+  mix-blend-mode: overlay !important;
+}

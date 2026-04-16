@@ -1,0 +1,273 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #FFC107, #FF9800);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-attention {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #D32F2F;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.modal-attention svg {
+    color: #FFC107;
+}
+
+.modal-subtitle {
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.modal-subtitle span {
+    color: #666;
+    font-weight: 400;
+}
+
+.modal-main-text {
+    color: #333;
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.red-text {
+    color: #D32F2F;
+    font-weight: 600;
+}
+
+.ctb-box {
+    background: #F5F5F5;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.ctb-box h4 {
+    color: #212121;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.ctb-box>p {
+    color: #757575;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+}
+
+.ctb-details p {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #424242;
+}
+
+.modal-continue-btn {
+    display: block;
+    width: 100%;
+    height: 56px;
+    background: #000;
+    color: #e5ff51;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.15s;
+}
+
+.modal-continue-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Popup notification */
+.popup {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 9998;
+    max-width: 400px;
+    width: 90%;
+    overflow: hidden;
+}
+
+.popup.hidden {
+    display: none;
+}
+
+.popup-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+}
+
+.popup-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #FFC107;
+    color: #000;
+    border-radius: 50%;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.popup-text {
+    flex: 1;
+}
+
+.popup-text strong {
+    display: block;
+    color: #212121;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.popup-text p {
+    color: #666;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.popup-close {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.popup-progress {
+    height: 3px;
+    background: #E0E0E0;
+}
+
+.popup-progress-bar {
+    height: 100%;
+    background: #FFC107;
+    width: 100%;
+    transition: width 5s linear;
+}
+
+/* Dialog/Error Modal */
+.dlg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.dlg[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.dlg__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.dlg__card {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+}
+
+.dlg__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #212121;
+    margin: 0 0 12px 0;
+}
+
+.dlg__card p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+}
+
+.dlg__primary {
+    display: inline-block;
+    padding: 12px 40px;
+    background: #000;
+    color: #e5ff51;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.m__grab {
+    width: 40px;
+    height: 4px;
+    background: #E0E0E0;
+    border-radius: 2px;
+    margin: 0 auto 16px;
+}

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Finalizar - Pedágio Digital</title>
+    <!-- Fonte -->
+    <link rel="stylesheet" href="lib/fonts/ubuntu.css">
+    <!-- Favicons -->
+    <link rel="icon" href="favicon.ico" type="image/png" />
+    <link rel="apple-touch-icon" href="favicon.ico" />
+    
+    <link rel="stylesheet" href="css/checkout.css" />
+</head>
+<body>
+
+<header class="header">
+ <a class="header__back" href="plate-info.html" id="backLink">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+ </a>
+ <span class="header__title">Finalizar</span>
+</header>
+
+<div class="page">
+
+ <!-- Resumo -->
+ <div class="summary">
+  <div class="summary__row">
+   <div>
+    <strong>Tarifas de Pedágio</strong>
+    <p class="summary__plate" id="summaryPlate"></p>
+   </div>
+   <div style="text-align:right">
+    <span class="summary__label">Total</span>
+    <div class="summary__value" id="summaryValue">R$ --,--</div>
+   </div>
+  </div>
+ </div>
+
+ <!-- Dados pessoais -->
+ <div id="formSection">
+  <div class="sec-title">
+   <h2>Finalizar</h2>
+   <div class="sec-badge">
+    <span>Ambiente seguro</span>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3.5 6v5c0 5.55 3.84 10.74 8.5 12 4.66-1.26 8.5-6.45 8.5-12V6L12 2zm-1 15l-4-4 1.41-1.41L11 14.17l5.59-5.59L18 10l-7 7z" fill="#18181b"/></svg>
+   </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Info PIX + Segurança -->
+  <div style="text-align:center;padding:16px 0 8px">
+   <!-- Ajustamos a extensão original de pix.png para ficar consistente, ou o próprio link se houver imagem -->
+   <h3 style="margin:8px 0 4px;font-size:18px;color:#000">Pagamento via PIX</h3>
+   <p style="color:#6b7280;font-size:13px;margin:0">Rápido, seguro e sem taxas adicionais</p>
+  </div>
+
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:12px 0">
+   <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 8.5 12 4.66-1.26 8.5-6.45 8.5-12V5L12 1z" fill="#22c55e"/><path d="M10 15.17l-3.17-3.17 1.41-1.41L10 12.34l5.76-5.76 1.41 1.41L10 15.17z" fill="#fff"/></svg>
+    <span style="font-weight:600;font-size:14px;color:#000">Transação protegida</span>
+   </div>
+   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">
+    <li style="display:flex;align-items:center;gap:8px;font-size:13px;color:#374151">
+     <svg width="16" height="16" viewBox="0 0 20 20" fill="#22c55e"><path d="M7.5 16.5L4 13l1.41-1.59L7.5 13.67l7.09-7.08L16 8l-8.5 8.5z"/></svg>
+     Criptografia de ponta a ponta
+    </li>
+    <li style="display:flex;align-items:center;gap:8px;font-size:13px;color:#374151">
+     <svg width="16" height="16" viewBox="0 0 20 20" fill="#22c55e"><path d="M7.5 16.5L4 13l1.41-1.59L7.5 13.67l7.09-7.08L16 8l-8.5 8.5z"/></svg>
+     Confirmação instantânea pelo Banco Central
+    </li>
+    <li style="display:flex;align-items:center;gap:8px;font-size:13px;color:#374151">
+     <svg width="16" height="16" viewBox="0 0 20 20" fill="#22c55e"><path d="M7.5 16.5L4 13l1.41-1.59L7.5 13.67l7.09-7.08L16 8l-8.5 8.5z"/></svg>
+     Liberação automática após pagamento
+    </li>
+   </ul>
+  </div>
+
+ </div>
+
+ <!-- Payment section (visível direto) -->
+ <div class="pix-section" id="paySection" style="display:block!important;opacity:1!important">
+
+  <!-- PIX content -->
+  <div class="pay-content" id="pixContent">
+   <button class="btn-gerar-pix" id="btnGerarPix">Gerar Pix</button>
+   <ul class="pay-info">
+    <li><span class="pay-bullet"></span> Pagamento somente à vista</li>
+    <li><span class="pay-bullet"></span> A liberação ocorre após a confirmação do pagamento</li>
+    <li><span class="pay-bullet"></span> Ao gerar o código atente para a data de expiração</li>
+   </ul>
+
+   <div id="pixQrSection" style="display:none">
+    <div class="pix-box">
+     <p style="font-size:14px;color:#6b7280;margin-bottom:8px">Escaneie o QR Code ou copie o código</p>
+     <div class="pix-qr">
+      <canvas id="qrCanvas"></canvas>
+     </div>
+     <div class="pix-value" id="pixValue">R$ --,--</div>
+     <div class="pix-timer">Expira em: <span id="timerDisplay">14:59</span></div>
+     <div class="pix-copy-wrap">
+      <input type="text" class="pix-code" id="pixCode" value="" readonly>
+      <button class="btn-copy" id="btnCopy">Copiar</button>
+     </div>
+     <p class="pix-info">A liberação ocorre após a confirmação do pagamento, que pode levar até <b>3 minutos</b>.</p>
+    </div>
+   </div>
+  </div>
+
+ </div>
+</div>
+
+<!-- Modal V3 - Sucesso -->
+<div class="modal-overlay" id="successModal">
+ <div class="modal-v3">
+  <div class="modal-v3__top">
+   <div class="modal-v3__icon" style="background:#dcfce7;border-radius:50%;width:60px;height:60px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+    <svg viewBox="0 0 24 24" fill="none" style="width:40px;height:40px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#16a34a"/></svg>
+   </div>
+   <h2 style="color:#16a34a">Pagamento Confirmado</h2>
+   <p>Seu pedágio foi pago com sucesso</p>
+  </div>
+  <div class="modal-v3__body">
+   <div class="timeline">
+    <div class="tl-item">
+     <div class="tl-dot green">
+      <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Pagamento aprovado</h4>
+      <p>Seu pagamento foi processado com sucesso e confirmado pelo Banco Central.</p>
+     </div>
+    </div>
+    <div class="tl-item">
+     <div class="tl-dot green">
+      <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Liberação automática</h4>
+      <p>Seu acesso ao pedágio foi liberado automaticamente. Você pode trafegar normalmente.</p>
+     </div>
+    </div>
+    <div class="tl-item">
+     <div class="tl-dot green">
+      <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Comprovante enviado</h4>
+      <p>Um email com o comprovante do pagamento foi enviado para seu email cadastrado.</p>
+     </div>
+    </div>
+   </div>
+   <button class="modal-v3__btn" id="btnFecharSucesso" style="background:#16a34a">Voltar ao Início</button>
+  </div>
+ </div>
+</div>
+
+<!-- Modal V3 - Timeline -->
+<div class="modal-overlay" id="errorModal">
+ <div class="modal-v3">
+  <div class="modal-v3__top">
+   <div class="modal-v3__icon">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#dc2626"/></svg>
+   </div>
+   <h2>Erro no Processamento</h2>
+   <p>Ocorreu uma falha na transação</p>
+  </div>
+  <div class="modal-v3__body">
+   <div class="timeline">
+    <div class="tl-item">
+     <div class="tl-dot red">
+      <svg viewBox="0 0 24 24" fill="#dc2626"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Pagamento recusado</h4>
+      <p>Infelizmente houve um erro no processamento do seu pagamento. A instituição financeira não conseguiu concluir a transação.</p>
+     </div>
+    </div>
+    <div class="tl-item">
+     <div class="tl-dot green">
+      <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Estorno confirmado</h4>
+      <p>O estorno foi confirmado automaticamente. O valor retornará à sua conta em até 24 horas.</p>
+     </div>
+    </div>
+    <div class="tl-item">
+     <div class="tl-dot blue">
+      <svg viewBox="0 0 24 24" fill="#2563eb"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+     </div>
+     <div class="tl-text">
+      <h4>Gerar novo pagamento</h4>
+      <p>Para concluir o pagamento do seu pedágio, por favor gere um novo código PIX abaixo.</p>
+     </div>
+    </div>
+   </div>
+   <button class="modal-v3__btn" id="btnNovoPixModal">Gerar Novo PIX</button>
+  </div>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="js/checkout.js"></script>
+<p style="font-size:11px;text-align:center;margin:15px auto;padding:0 20px"><a href="index.html" style="color:#666;text-decoration:underline">Termos de Uso</a> &nbsp;|&nbsp; <a href="index.html" style="color:#666;text-decoration:underline">Política de Privacidade</a></p>
+</body>
+</html>

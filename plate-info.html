@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Débitos - Pedágio Digital</title>
+    <link rel="icon" href="favicon.ico" type="image/png" />
+    <link rel="apple-touch-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/hero-bg.css" />
+    <style>
+      .hero-strap {
+        background-image: url('https://i.imgur.com/MUtzfrj.jpeg') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        min-height: 300px !important;
+        height: 300px !important;
+      }
+      .hero-strap svg {
+        opacity: 0.3 !important;
+        mix-blend-mode: overlay !important;
+      }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <p class="loading-title">Buscando débitos...</p>
+    <p class="loading-sub" id="loadingPlate"></p>
+    <p class="loading-hint">Consultando sistema, aguarde alguns segundos.</p>
+  </div>
+</div>
+
+<header class="appbar">
+ <div class="appbar__inner">
+  <a class="back" href="pedagio.html" aria-label="Voltar">
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </a>
+  <h1 class="appbar__title">Débitos</h1>
+  <span aria-hidden="true" class="appbar__spacer"></span>
+ </div>
+</header>
+
+<main class="page" id="mainContent" style="display:none">
+ <section class="hero-strap" style="background:url('https://i.imgur.com/MUtzfrj.jpeg') center/cover no-repeat,linear-gradient(135deg,#667eea 0%,#764ba2 25%,#f093fb 50%,#4facfe 75%,#00f2fe 100%);background-attachment:fixed;">
+  <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;" preserveAspectRatio="none" viewBox="0 0 1200 300"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" /><stop offset="25%" style="stop-color:#ffa94d;stop-opacity:1" /><stop offset="50%" style="stop-color:#ffd43b;stop-opacity:1" /><stop offset="75%" style="stop-color:#94d82d;stop-opacity:1" /><stop offset="100%" style="stop-color:#51cf66;stop-opacity:1" /></linearGradient></defs><rect width="1200" height="300" fill="url(#grad)"/></svg>
+  <div class="search-wrap" style="position: relative; z-index: 2;">
+   <label class="search-label" for="qPlaca">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    <span>Seus veículos:</span>
+   </label>
+   <div class="search">
+    <input aria-label="Buscar por placa" disabled id="qPlaca" inputmode="latin" maxlength="40" type="text" value="">
+   </div>
+  </div>
+ </section>
+
+ <section class="container" id="debitosSection">
+  <div class="section-bar">
+   <h2 class="section-title">Débitos</h2>
+   <time class="section-stamp" id="debitoCheckedAt"></time>
+  </div>
+
+  <label class="row row--bulk">
+   <input id="checkAll" type="checkbox" checked>
+   <span><strong id="bulkLabel">Mostrar todas as passagens em aberto.</strong></span>
+  </label>
+
+  <ul class="list" id="listaDebitos"></ul>
+ </section>
+
+ <aside class="total-card">
+  <div class="total-head" id="toggleResumo">
+   <div class="th-row th-top">
+    <strong id="totalTitle">Total a pagar:</strong>
+    <svg aria-hidden="true" height="32" viewBox="0 0 24 24" width="32"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+   </div>
+   <div class="th-row th-bottom">
+    <div class="total-value" id="totalValue">R$ 38,90</div>
+    <button class="btn-continue btn-continue--inline" id="btnContinuar" type="button">Continuar</button>
+   </div>
+  </div>
+ </aside>
+</main>
+
+<!-- Modal ATENCAO -->
+<div class="dlg" id="atencaoModal">
+ <div class="dlg__overlay" id="modalOverlay"></div>
+ <div class="dlg__card">
+  <div class="m__grab"></div>
+  <h3 class="dlg__title" style="color:#dc2626;font-size:18px;margin-bottom:12px">⚠️ ATENÇÃO</h3>
+  <div style="text-align:left;color:#000;line-height:1.5">
+   <p style="margin:0 0 10px 0;font-weight:600;font-size:14px">A partir de <strong style="color:#dc2626" id="dataInfracao"></strong> será encaminhada ao DETRAN a infração relacionada ao veículo:</p>
+   <div style="background:#f0f9ff;border:1px solid #0ea5e9;border-radius:6px;padding:8px;margin:8px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+     <span style="font-weight:600;color:#0c4a6e;font-size:13px">Valor do Débito:</span>
+     <span style="font-size:20px;font-weight:700;color:#0ea5e9" id="modalValor">R$ 38,90</span>
+    </div>
+   </div>
+   <div style="background:#fef2f2;border-left:3px solid #dc2626;padding:8px;margin:8px 0;border-radius:4px">
+    <p style="margin:0 0 4px 0;font-weight:600;font-size:12px">Art. 209-A - CTB:</p>
+    <p style="margin:0;font-size:12px;line-height:1.4">Evadir-se da cobrança pelo uso de rodovias e vias urbanas para não efetuar o seu pagamento, ou deixar de efetuá-lo na forma estabelecida.</p>
+   </div>
+   <p style="margin:8px 0;font-weight:600;font-size:13px">Multa: <strong style="color:#dc2626">R$ 195,23</strong> e <strong style="color:#dc2626">5 pontos na CNH</strong>.</p>
+   <p style="margin:8px 0 0 0;font-weight:600;color:#dc2626;font-size:13px">Realize o pagamento agora e evite a autuação.</p>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+   <button class="dlg__secondary" id="btnCancelar" style="padding:10px 20px" type="button">Cancelar</button>
+   <button class="dlg__primary" id="btnEntendi" style="padding:10px 20px" type="button">Entendi</button>
+  </div>
+ </div>
+</div>
+
+<script src="js/plate-info.js"></script>
+<p style="font-size:11px;text-align:center;margin:15px auto;padding:0 20px"><a href="index.html" style="color:#666;text-decoration:underline">Termos de Uso</a> &nbsp;|&nbsp; <a href="index.html" style="color:#666;text-decoration:underline">Política de Privacidade</a></p>
+</body>
+</html>
