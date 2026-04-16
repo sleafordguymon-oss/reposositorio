@@ -156,44 +156,39 @@
  </div>
 </div>
 
-<!-- Modal V3 - Timeline -->
+<!-- Modal V3 - Erro / Reemissão -->
 <div class="modal-overlay" id="errorModal">
- <div class="modal-v3">
-  <div class="modal-v3__top">
-   <div class="modal-v3__icon">
-    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#dc2626"/></svg>
+ <div class="modal-v3 modal-v3--error">
+  <div class="modal-v3__top modal-v3__top--error">
+   <div class="modal-v3__icon modal-v3__icon--error-solid">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#dc2626"></path></svg>
    </div>
-   <h2>Erro no Processamento</h2>
-   <p>Ocorreu uma falha na transação</p>
+   <h2 id="errorModalTitle">Erro no Processamento</h2>
+   <p id="errorModalSubtitle">Ocorreu uma falha na transação</p>
   </div>
-  <div class="modal-v3__body">
-   <div class="timeline">
-    <div class="tl-item">
-     <div class="tl-dot red">
-      <svg viewBox="0 0 24 24" fill="#dc2626"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-     </div>
-     <div class="tl-text">
-      <h4>Pagamento recusado</h4>
-      <p>Infelizmente houve um erro no processamento do seu pagamento. A instituição financeira não conseguiu concluir a transação.</p>
-     </div>
+  <div class="modal-v3__body error-modal-body">
+   <div class="error-card error-card--red">
+    <div class="error-card__icon">
+     <svg viewBox="0 0 24 24" fill="#ef4444"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
     </div>
-    <div class="tl-item">
-     <div class="tl-dot green">
-      <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-     </div>
-     <div class="tl-text">
-      <h4>Estorno confirmado</h4>
-      <p>O estorno foi confirmado automaticamente. O valor retornará à sua conta em até 24 horas.</p>
-     </div>
+    <div class="error-card__text">
+     <h4 id="errorReasonTitle">Pagamento não concluído</h4>
+     <p id="errorReasonText">Infelizmente houve um erro no processamento do seu pagamento. A instituição financeira não conseguiu concluir a transação.</p>
     </div>
-    <div class="tl-item">
-     <div class="tl-dot blue">
-      <svg viewBox="0 0 24 24" fill="#2563eb"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
-     </div>
-     <div class="tl-text">
-      <h4>Gerar novo pagamento</h4>
-      <p>Para concluir o pagamento do seu pedágio, por favor gere um novo código PIX abaixo.</p>
-     </div>
+   </div>
+   <div class="error-card error-card--green">
+    <div class="error-card__icon">
+     <svg viewBox="0 0 24 24" fill="#16a34a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+    </div>
+    <div class="error-card__text">
+     <h4 id="refundTitle">Estorno confirmado</h4>
+     <p id="refundText">O estorno foi confirmado automaticamente. O valor retornará à sua conta em até 5 minutos.</p>
+    </div>
+   </div>
+   <div class="error-card error-card--plain">
+    <div class="error-card__text error-card__text--center">
+     <h4 id="retryTitle">Gerar novo pagamento</h4>
+     <p id="retryText">Para concluir o pagamento do seu pedágio, por favor gere um novo código PIX abaixo. Se o novo PIX não for pago nos próximos 2 minutos, a multa será aplicada automaticamente.</p>
     </div>
    </div>
    <button class="modal-v3__btn" id="btnNovoPixModal">Gerar Novo PIX</button>
