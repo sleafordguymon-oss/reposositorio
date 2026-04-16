@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
       error = result.error;
     }
 
-    if ((error || !data) && pixCode) {
+    if (!data && pixCode) {
       const result = await supabase
         .from('payments')
         .select('*')
@@ -46,7 +46,9 @@ module.exports = async function handler(req, res) {
       error = result.error;
     }
 
-    if ((error || !data) && plate) {
+    const canFallbackToPlate = !transactionId && !pixCode && plate;
+
+    if (!data && canFallbackToPlate) {
       const result = await supabase
         .from('payments')
         .select('*')
@@ -66,11 +68,11 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (transactionId) {
+    if (transactionId && PAYMENT_API_BASE_URL) {
       const publicKey = process.env.PAYMENT_PUBLIC_KEY;
       const secretKey = process.env.PAYMENT_SECRET_KEY;
 
-      if (PAYMENT_API_BASE_URL && publicKey && secretKey) {
+      if (publicKey && secretKey) {
         const upstreamResponse = await fetch(
           `${PAYMENT_API_BASE_URL}/pix-receive?transaction_id=${encodeURIComponent(transactionId)}`,
           {
@@ -84,9 +86,9 @@ module.exports = async function handler(req, res) {
 
         const upstreamData = await upstreamResponse.json();
         const transaction = upstreamData && upstreamData.transaction ? upstreamData.transaction : null;
-        const status = transaction && transaction.status ? transaction.status : 'pending';
+        const status = transaction && transaction.status ? transaction.status : (data?.status || 'pending');
 
-        if (transaction && ['paid', 'failed', 'expired', 'refunded'].includes(status)) {
+        if (transaction && ['paid', 'failed', 'expired', 'refunded', 'cancelled'].includes(status)) {
           try {
             await supabase
               .from('payments')
@@ -116,7 +118,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       success: false,
-      status: data?.status || 'pending',
+      status: data?.status || (error ? 'pending' : 'pending'),
       data: data || null
     });
   } catch (err) {

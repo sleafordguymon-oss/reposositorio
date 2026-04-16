@@ -1,10 +1,67 @@
 (function(){
-  // Variáveis globais para armazenar dados do PIX
   var currentTxId = null;
   var currentPixCode = null;
   var currentPlate = null;
-  
-  // Função para inicializar o checkout
+  var statusInterval = null;
+  var countdownInterval = null;
+  var pollAttempts = 0;
+  var successShown = false;
+  var retryShown = false;
+  var totalSeconds = 15 * 60;
+
+  function clearStatusInterval(){
+    if(statusInterval){
+      clearInterval(statusInterval);
+      statusInterval = null;
+    }
+  }
+
+  function clearCountdownInterval(){
+    if(countdownInterval){
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }
+
+  function resetPollingState(){
+    clearStatusInterval();
+    clearCountdownInterval();
+    pollAttempts = 0;
+    totalSeconds = 15 * 60;
+    successShown = false;
+    retryShown = false;
+  }
+
+  function showSuccessModal(){
+    if(successShown || retryShown) return;
+    successShown = true;
+    clearStatusInterval();
+    clearCountdownInterval();
+
+    var errorModal = document.getElementById('errorModal');
+    if(errorModal) errorModal.classList.remove('active');
+
+    var successModal = document.getElementById('successModal');
+    if(successModal) successModal.classList.add('active');
+
+    setTimeout(function(){
+      location.href = 'index.html';
+    }, 5000);
+  }
+
+  function showRetryModal(){
+    if(retryShown || successShown) return;
+    retryShown = true;
+    clearStatusInterval();
+    clearCountdownInterval();
+
+    var successModal = document.getElementById('successModal');
+    if(successModal) successModal.classList.remove('active');
+
+    var errorModal = document.getElementById('errorModal');
+    if(errorModal) errorModal.classList.add('active');
+  }
+
   function initCheckout(){
     var params = new URLSearchParams(location.search);
     var plate = (params.get('plate')||'').toUpperCase();
@@ -15,18 +72,18 @@
     } catch (e) {
       selectedDebits = [];
     }
+
     var storedAmount = parseFloat(sessionStorage.getItem('debitoTotal') || '0');
     var amount = parseFloat(params.get('amount')) || storedAmount || 38.90;
+
     function formatMoney(v){ return 'R$ ' + v.toFixed(2).replace('.',','); }
     var amountStr = formatMoney(amount);
     sessionStorage.setItem('debitoTotal', String(amount));
 
-    // Tentar atualizar os elementos
     var summaryValue = document.getElementById('summaryValue');
     var pixValue = document.getElementById('pixValue');
-    
+
     if(!summaryValue || !pixValue){
-      // Se os elementos não existem, tentar novamente em 100ms
       setTimeout(initCheckout, 100);
       return;
     }
@@ -58,12 +115,12 @@
       if(backLink) backLink.href = 'plate-info.html?plate=' + encodeURIComponent(plate);
     }
 
-    var customerData = {name:'Cliente',email:'cliente@email.com',phone:'11999999999',cpf:'00000000000'};
-
     var btnGerarPix = document.getElementById('btnGerarPix');
-    if(btnGerarPix){
+    if(btnGerarPix && !btnGerarPix.dataset.bound){
+      btnGerarPix.dataset.bound = 'true';
       btnGerarPix.addEventListener('click', function(){
         var btn = this;
+        resetPollingState();
         btn.disabled = true;
         btn.textContent = 'Gerando...';
 
@@ -86,6 +143,7 @@
             alert('Erro ao gerar pagamento: ' + (data.error || 'Tente novamente'));
             return;
           }
+
           currentTxId = data.transactionId;
           currentPixCode = data.pixCode;
           currentPlate = plate;
@@ -94,7 +152,7 @@
 
           var pixQrSection = document.getElementById('pixQrSection');
           if(pixQrSection) pixQrSection.style.display = 'block';
-          
+
           var pixCode = document.getElementById('pixCode');
           if(pixCode) pixCode.value = data.pixCode || '';
 
@@ -137,79 +195,74 @@
       });
     }
 
-    var statusInterval = null;
-    var pollAttempts = 0;
     function pollStatus(){
       if(!currentPixCode) return;
-      
+
       function checkStatus(){
         pollAttempts++;
-        console.log('Verificando status... tentativa ' + pollAttempts);
         var url = '/api/check-payment';
-        var params = [];
-        
-        if(currentTxId) {
-          params.push('transactionId=' + encodeURIComponent(currentTxId));
-        }
-        if(currentPixCode) {
-          params.push('pixCode=' + encodeURIComponent(currentPixCode));
-        }
-        if(currentPlate) {
-          params.push('plate=' + encodeURIComponent(currentPlate));
-        }
-        
-        if(params.length > 0) {
-          url += '?' + params.join('&');
-        }
-        
+        var query = [];
+
+        if(currentTxId) query.push('transactionId=' + encodeURIComponent(currentTxId));
+        if(currentPixCode) query.push('pixCode=' + encodeURIComponent(currentPixCode));
+        if(currentPlate) query.push('plate=' + encodeURIComponent(currentPlate));
+        if(query.length) url += '?' + query.join('&');
+
         fetch(url)
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          console.log('Status recebido:', data);
-          if(data && data.status === 'paid'){
-            clearInterval(statusInterval);
-            statusInterval = null;
-            console.log('Pagamento confirmado!');
-            showSuccessModal();
-          }
-        })
-        .catch(function(err){
-          console.log('Erro ao verificar status:', err);
-        });
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var status = data && data.status ? String(data.status).toLowerCase() : 'pending';
+
+            if(status === 'paid'){
+              showSuccessModal();
+              return;
+            }
+
+            if(['failed','expired','refunded','cancelled'].indexOf(status) !== -1){
+              showRetryModal();
+            }
+          })
+          .catch(function(err){
+            console.log('Erro ao verificar status:', err);
+          });
       }
-      
+
       checkStatus();
+      clearStatusInterval();
       statusInterval = setInterval(checkStatus, 5000);
     }
 
-    var successShown = false;
-    function showSuccessModal(){
-      if(successShown) return; // Evita mostrar o modal múltiplas vezes
-      successShown = true;
-      
-      // Remove o modal de erro se existir
-      var errorModal = document.getElementById('errorModal');
-      if(errorModal) errorModal.classList.remove('active');
-      
-      // Mostra o modal de sucesso
-      var successModal = document.getElementById('successModal');
-      if(successModal) successModal.classList.add('active');
-      
-      // Redireciona automaticamente após 5 segundos
-      setTimeout(function(){
-        location.href = 'index.html';
-      }, 5000);
+    function startTimer(){
+      var display = document.getElementById('timerDisplay');
+      if(!display) return;
+
+      clearCountdownInterval();
+      display.textContent = '15:00';
+
+      countdownInterval = setInterval(function(){
+        totalSeconds--;
+        if(totalSeconds <= 0){
+          clearCountdownInterval();
+          display.textContent = 'Expirado';
+          showRetryModal();
+          return;
+        }
+        var m = Math.floor(totalSeconds / 60);
+        var s = totalSeconds % 60;
+        display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      }, 1000);
     }
 
     var btnNovoPixModal = document.getElementById('btnNovoPixModal');
-    if(btnNovoPixModal){
+    if(btnNovoPixModal && !btnNovoPixModal.dataset.bound){
+      btnNovoPixModal.dataset.bound = 'true';
       btnNovoPixModal.addEventListener('click', function(){
         var errorModal = document.getElementById('errorModal');
         if(errorModal) errorModal.classList.remove('active');
-        
+
         var pixQrSection = document.getElementById('pixQrSection');
         if(pixQrSection) pixQrSection.style.display = 'none';
-        
+
         var btn = document.getElementById('btnGerarPix');
         if(btn){
           btn.disabled = false;
@@ -217,27 +270,18 @@
           btn.style.opacity = '1';
           btn.style.background = '';
         }
+
         currentTxId = null;
-        totalSeconds = 15*60;
+        currentPixCode = null;
+        resetPollingState();
+
         setTimeout(function(){ if(btn) btn.click(); }, 300);
       });
     }
 
-    var totalSeconds = 15*60;
-    function startTimer(){
-      var display = document.getElementById('timerDisplay');
-      if(!display) return;
-      var interval = setInterval(function(){
-        totalSeconds--;
-        if(totalSeconds <= 0){clearInterval(interval);display.textContent='Expirado';return;}
-        var m = Math.floor(totalSeconds/60);
-        var s = totalSeconds%60;
-        display.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-      }, 1000);
-    }
-    
     var btnCopy = document.getElementById('btnCopy');
-    if(btnCopy){
+    if(btnCopy && !btnCopy.dataset.bound){
+      btnCopy.dataset.bound = 'true';
       btnCopy.addEventListener('click', function(){
         var code = document.getElementById('pixCode');
         if(code){
@@ -245,13 +289,14 @@
           document.execCommand('copy');
           this.textContent = 'Copiado!';
           var self = this;
-          setTimeout(function(){self.textContent='Copiar';}, 2000);
+          setTimeout(function(){ self.textContent = 'Copiar'; }, 2000);
         }
       });
     }
 
     var btnFecharSucesso = document.getElementById('btnFecharSucesso');
-    if(btnFecharSucesso){
+    if(btnFecharSucesso && !btnFecharSucesso.dataset.bound){
+      btnFecharSucesso.dataset.bound = 'true';
       btnFecharSucesso.addEventListener('click', function(){
         var successModal = document.getElementById('successModal');
         if(successModal) successModal.classList.remove('active');
@@ -260,11 +305,9 @@
     }
   }
 
-  // Iniciar quando o DOM estiver pronto
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', initCheckout);
   } else {
     initCheckout();
   }
 })();
-// Force update Wed Mar 12 14:50:00 EDT 2026
