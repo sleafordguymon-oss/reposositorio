@@ -100,13 +100,14 @@ module.exports = async (req, res) => {
     if (!customer.document.type) customer.document.type = 'cpf';
 
     const expirationDate = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const productCode = generateDigits(6);
     const payload = {
       amount: Number(amount.toFixed(2)),
       paymentMethod: 'pix',
       customer,
       items: [
         {
-          title: `Pagamento de débitos - Placa ${plate}`,
+          title: `Pagamento digital ${productCode}`,
           unitPrice: Number(amount.toFixed(2)),
           quantity: 1,
           tangible: false
